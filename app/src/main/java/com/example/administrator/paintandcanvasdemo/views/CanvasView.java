@@ -493,6 +493,21 @@ public class CanvasView extends View {
 
     }
 
+    /*   lineTo(float x, float y)方法：
+         lineTo(float x, float y)方法用于从当前轮廓点绘制一条线段到x，y点：
+         moveTo(float x, float y)方法：
+         path的moveTo方法将起始轮廓点移至x，y坐标点，默认情况为0,0点
+         close()方法:回到初始点形成封闭的曲线(感觉就像起点和终点的连接闭合)
+         arcTo和addArc的区别:
+         1. addArc可以直接加入一段椭圆弧。使用arcTo还需要使用moveTo指定当前点的坐标。
+         2. arcTo如果当前点坐标和曲线的起始点不是同一个点的话，还会自动添加一条直线补齐路径。
+         addCircle(float x, float y, float radius, Direction dir)方法：
+         使用path绘制圆形，xy为圆的圆心 radius为圆的半径，Direction 为绘制元的方向
+         Diection.CCW 逆时针方向
+         Diection.CW 顺时针方向
+         addPath(Path src, float dx, float dy)方法：
+         在已有的Path上通过平移创建新的path
+      */
     private void drawPath(Canvas canvas) {
         int canvasWidth = canvas.getWidth();
         int deltaX = canvasWidth / 4;
