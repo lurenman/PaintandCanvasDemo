@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="transparent">#00000000</color>
+    <color name="bule_overlay">#660D92DD</color>
+    <color name="color_titlestate">#2b2b2b</color>
+    <color name="color_titlestate1">#ff6161</color>
+    <color name="sy_color">#333333</color>
+    <color name="sy_color1">#666666</color>
+    <color name="sy_color3">#2B2B2B</color>
+    <color name="sy_color4">#E55995</color>
+    <color name="umeng_white">#ffffff</color>
+    <color name="white">#ffffff</color>
+    <color name="umeng_blue">#469ef8</color>
+    <color name="umeng_black">#000000</color>
+    <color name="province_line_border">#D0D0D0</color>
+    <color name="plugin_camera_black">#000000</color>
+    <color name="gridview_line">#dddddd</color>
+    <color name="blue">#FF2F7DE1</color>
+</resources>
