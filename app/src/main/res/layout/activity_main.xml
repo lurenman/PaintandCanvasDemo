@@ -16,6 +16,15 @@
        android:textColor="@color/colorPrimary"
        android:textSize="18sp"
        />
+   <TextView
+       android:id="@+id/tv_Xfermode"
+       android:layout_marginTop="60dp"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="Xfermode例子"
+       android:textColor="@color/colorPrimary"
+       android:textSize="18sp"
+       />
 
 
 </LinearLayout>

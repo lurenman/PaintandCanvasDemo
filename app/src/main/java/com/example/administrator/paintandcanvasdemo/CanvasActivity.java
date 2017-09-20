@@ -39,6 +39,8 @@ public class CanvasActivity extends BaseActivity {
     TextView tv_DrawPath;
     @BindView(R.id.tv_DrawBitmap)
     TextView tv_DrawBitmap;
+    @BindView(R.id.tv_layer)
+    TextView tv_Layer;
 
     @Override
     protected void initVariables() {
@@ -56,9 +58,12 @@ public class CanvasActivity extends BaseActivity {
     protected void loadData() {
 
     }
-    @OnClick({R.id.tv_DrawAxis, R.id.tv_DrawARGB, R.id.tv_DrawText, R.id.tv_DrawPoint, R.id.tv_DrawLine, R.id.tv_DrawRect, R.id.tv_DrawCircle, R.id.tv_DrawOval, R.id.tv_DrawArc, R.id.tv_DrawPath, R.id.tv_DrawBitmap})
+
+    @OnClick({R.id.tv_DrawAxis, R.id.tv_DrawARGB, R.id.tv_DrawText, R.id.tv_DrawPoint,
+            R.id.tv_DrawLine, R.id.tv_DrawRect, R.id.tv_DrawCircle, R.id.tv_DrawOval,
+            R.id.tv_DrawArc, R.id.tv_DrawPath, R.id.tv_DrawBitmap, R.id.tv_layer})
     public void onViewClicked(View view) {
-        CanvasView.DrawMode drawMode =null;
+        CanvasView.DrawMode drawMode = null;
         switch (view.getId()) {
             case R.id.tv_DrawAxis:
                 drawMode = CanvasView.DrawMode.AXIS;
@@ -92,6 +97,9 @@ public class CanvasActivity extends BaseActivity {
                 break;
             case R.id.tv_DrawBitmap:
                 drawMode = CanvasView.DrawMode.BITMAP;
+                break;
+            case R.id.tv_layer:
+                drawMode = CanvasView.DrawMode.LAYER;
                 break;
         }
         Intent intent = new Intent(this, CanvasViewActivity.class);

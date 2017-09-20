@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
@@ -25,10 +27,18 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/9/15.
  * 自定义一个view，这个View包括一些简单的绘制操作
+ * 参考
+ * http://blog.csdn.net/abcdef314159/article/details/51720686
+ *
+ * 这篇文章讲的非常好
+ * http://blog.csdn.net/iispring/article/details/50472485
+ * android canvas layer (图层)详解与进阶
+ * http://blog.csdn.net/cquwentao/article/details/51423371
  */
 
 public class CanvasView extends View {
     private static final String TAG = "CanvasView";
+    private Context mContext;
     private float textHeight;
     private float fontSize = getResources().getDimensionPixelSize(R.dimen.default_font_size);
     private TextPaint paint;
@@ -40,16 +50,19 @@ public class CanvasView extends View {
 
     public CanvasView(Context context) {
         super(context);
+        mContext = context;
         init(null, 0);
     }
 
     public CanvasView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         init(attrs, 0);
     }
 
     public CanvasView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mContext = context;
         init(attrs, defStyleAttr);
     }
 
@@ -71,7 +84,8 @@ public class CanvasView extends View {
         OVAL(8),
         ARC(9),
         PATH(10),
-        BITMAP(11);
+        BITMAP(11),
+        LAYER(12);
         private int value = 0;
 
         private DrawMode(int value) {
@@ -108,6 +122,8 @@ public class CanvasView extends View {
                     return PATH;
                 case 11:
                     return BITMAP;
+                case 12:
+                    return LAYER;
                 default:
                     return UNKNOWN;
             }
@@ -115,6 +131,7 @@ public class CanvasView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+
         //初始化TextPaint
         paint = new TextPaint();
 
@@ -205,6 +222,9 @@ public class CanvasView extends View {
             case BITMAP:
                 drawBitmap(canvas);
                 break;
+            case LAYER:
+                drawLAYER(canvas);
+                break;
         }
     }
 
@@ -239,8 +259,20 @@ public class CanvasView extends View {
 
     //这个是整个背景就画了
     private void drawARGB(Canvas canvas) {
-        //随便画一个颜色
-        canvas.drawARGB(255, 123, 123, 123);
+        int canvasWidth = canvas.getWidth();
+        int canvasHeight = canvas.getHeight();
+        int halfCanvasWidth = canvasWidth / 2;
+        int halfCanvasHeight = canvasHeight / 2;
+        int radius = canvasWidth / 4;
+        canvas.drawARGB(255, 255, 255, 255);
+        // canvas.drawARGB(z, 0, 0, 0);
+        paint.setColor(getResources().getColor(R.color.white));
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        canvas.drawCircle(halfCanvasWidth, halfCanvasHeight / 3, radius, paint);
+        paint.setXfermode(null);
+
+
     }
 
     private void drawText(Canvas canvas) {
@@ -345,7 +377,8 @@ public class CanvasView extends View {
         canvas.translate(0, halfHeight);
         canvas.drawLine(halfWidth, 0, halfWidth, 200 * density, paint);
         paint.setStrokeCap(Paint.Cap.SQUARE);
-        canvas.drawLine(0, 0, 350 * density, 0, paint);
+        //canvas.drawLine(0, 0, 350 * density, 0, paint);
+        canvas.drawLine(0, 0, dip2px(mContext, 350), 0, paint);
         canvas.restore();
     }
 
@@ -398,7 +431,7 @@ public class CanvasView extends View {
         canvas.drawCircle((float) (radius * 0.7), halfCanvasHeight / 2, (float) (radius * 0.5), paint);
 
         //画一个圆环
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(10 * density);//设置圆环的宽度
         paint.setColor(getResources().getColor(R.color.sy_color1));
         canvas.drawCircle(canvasWidth - (float) (radius * 0.7), halfCanvasHeight / 2, (float) (radius * 0.7), paint);
@@ -636,6 +669,113 @@ public class CanvasView extends View {
         canvas.drawBitmap(bitmap1, srcRect1, dstRect1, paint);
         bitmap1.recycle();
     }
+/*    Flag	意义	适用方法
+    MATRIX_SAVE_FLAG	只保存图层的matrix矩阵	save，saveLayer
+    CLIP_SAVE_FLAG	只保存大小信息	save，saveLayer
+    HAS_ALPHA_LAYER_SAVE_FLAG	表明该图层有透明度，和下面的标识冲突，都设置时以下面的标志为准	saveLayer
+    FULL_COLOR_LAYER_SAVE_FLAG	完全保留该图层颜色（和上一图层合并时，清空上一图层的重叠区域，保留该图层的颜色）	saveLayer
+    CLIP_TO_LAYER_SAVE_	创建图层时，会把canvas（所有图层）裁剪到参数指定的范围，如果省略这个flag将导致图层开销巨大（实际上图层没有裁剪，与原图层一样大）
+    ALL_SAVE_FLAG	保存所有信息	save，saveLayer*/
+    private Bitmap srcBitmap, dstBitmap;
+    private void drawLAYER(Canvas canvas) {
+        int canvasWidth = canvas.getWidth();
+        int canvasHeight = canvas.getHeight();
+        int halfCanvasWidth = canvasWidth / 2;
+        int halfCanvasHeight = canvasHeight / 2;
+        int radius = canvasWidth / 4;
+        int layerId = canvas.saveLayer(0, 0, canvasWidth, canvasHeight, null, Canvas.ALL_SAVE_FLAG);
+//        srcBitmap = makeSrc(canvasWidth, canvasHeight);
+//        Rect srcRect1 = new Rect();
+//        srcRect1.left = 0;
+//        srcRect1.right = srcBitmap.getWidth();
+//        srcRect1.top = 0;
+//        srcRect1.bottom = srcBitmap.getHeight();
+//
+//        //这个方法就是要绘制到屏幕的位置
+//        Rect dstRect1 = new Rect();
+//        dstRect1.left = 0;
+//        dstRect1.right = srcBitmap.getWidth();
+//        dstRect1.top = 0;
+//        dstRect1.bottom = srcBitmap.getHeight();
+//
+//        canvas.drawBitmap(srcBitmap, 0, 0, paint);
+        canvas.drawARGB(255, 255, 255, 255);
+        paint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setColor(getResources().getColor(R.color.blue));
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        canvas.drawCircle(halfCanvasWidth, halfCanvasHeight / 2, radius, paint);
+        paint.setXfermode(null);
 
+        canvas.restoreToCount(layerId);
+
+    }
+
+    private Bitmap createBitamp(int w, int h) {
+        return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+    }
+
+    // 创建一个矩形bitmap，作为src图
+    private Bitmap makeSrc(int width, int height) {
+        Bitmap bm = createBitamp(width, height);
+        Canvas c = new Canvas(bm);
+        paint.setColor(getResources().getColor(R.color.white));
+        //paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        c.drawRect(0, 0, width, height, paint);
+       // paint.setXfermode(null);
+        return bm;
+    }
+
+    //创建一个圆形bitmap，作为dst图
+    private Bitmap makeDst(int width, int height) {
+        Bitmap bm = createBitamp(width, height);
+        Canvas c = new Canvas(bm);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setColor(getResources().getColor(R.color.blue));
+        c.drawCircle(width / 2, height / 3, width / 4, paint);
+        return bm;
+    }
+
+    /**
+     * 根据手机的分辨率从dip 的单位 转成为 px(像素)
+     */
+    public int dip2px(Context context, float dipValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dipValue * scale + 0.5f);
+    }
+
+    /**
+     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     */
+    public int px2dip(Context context, float pxValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (pxValue / scale + 0.5f);
+    }
+
+    /**
+     * 将px值转换为sp值，保证文字大小不变
+     */
+    public int px2sp(Context context, float pxValue) {
+        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+        return (int) (pxValue / fontScale + 0.5f);
+    }
+
+    /**
+     * 将sp值转换为px值，保证文字大小不变
+     */
+    public int sp2px(Context context, float spValue) {
+        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+        return (int) (spValue * fontScale + 0.5f);
+    }
+//    protected int dp2px(int dp){
+//        return  (int) TypedValue.applyDimension(
+//                TypedValue.COMPLEX_UNIT_DIP,dp,
+//                getResources().getDisplayMetrics());
+//    }
+//    protected int sp2px(int sp){
+//        return  (int) TypedValue.applyDimension(
+//                TypedValue.COMPLEX_UNIT_SP,sp，
+//                getResources().getDisplayMetrics());
+//    }
 
 }

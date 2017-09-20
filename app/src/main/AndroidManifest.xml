@@ -17,7 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".CanvasActivity"/>
-        <activity android:name=".CanvasViewActivity"/>
+        <activity android:name=".CanvasViewActivity"
+            />
+        <activity android:name=".PorterDuffXfermodeActivity"/>
     </application>
 
 </manifest>

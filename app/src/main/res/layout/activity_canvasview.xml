@@ -16,9 +16,19 @@
             android:textColor="@color/white"
             android:textSize="18sp" />
     </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/banner1"
+            />
    <com.example.administrator.paintandcanvasdemo.views.CanvasView
        android:id="@+id/cv_canvasView"
        android:layout_width="match_parent"
        android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
 </LinearLayout>
